@@ -24,9 +24,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="63dp"
-        android:text="@string/enable_wifi" />
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="171dp"
+        android:layout_marginTop="192dp"
+        android:text="@string/TRIGGER" />
 
     <Button
         android:id="@+id/disable_wifi_button"
@@ -36,7 +37,7 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="306dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="125dp"
         android:text="@string/disable_wifi" />
 
     <!--    <include layout="@layout/content_wifi_control" />-->

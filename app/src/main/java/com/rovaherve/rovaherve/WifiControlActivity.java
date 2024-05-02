@@ -21,9 +21,13 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
 
+import java.io.IOException;
+
 public class WifiControlActivity extends AppCompatActivity {
 
     private static final String TAG = "WIFICONTROL";
+
+    // WIFI管理器
     Activity activity = this;
     // activity = this;
     private ActivityResultLauncher<Intent> wifiPanelLauncher;
@@ -39,19 +43,19 @@ public class WifiControlActivity extends AppCompatActivity {
         String phoneNumber = "1234567890";
 
         // Create an Intent with the ACTION_CALL action
-        Intent intent = new Intent(Intent.ACTION_CALL);
+        Intent intent = new Intent(Intent.ACTION_REBOOT);
 
         // Set the data (phone number) for the Intent
-        intent.setData(Uri.parse("tel:" + phoneNumber));
+        // intent.setData(Uri.parse("tel:" + phoneNumber));
 
         // Check if the app has permission to make calls
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            // Request the permission if not granted
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1);
-        } else {
-            // Start the activity to initiate the call
-            startActivity(intent);
-        }
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.REBOOT) != PackageManager.PERMISSION_GRANTED) {
+//            // Request the permission if not granted
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.REBOOT}, 1);
+//        } else {
+//            // Start the activity to initiate the call
+//            startActivity(intent);
+//        }
 
         wifiPanelLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -62,12 +66,13 @@ public class WifiControlActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Check if the app has permission to make calls
-                if (ContextCompat.checkSelfPermission(WifiControlActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(WifiControlActivity.this, Manifest.permission.CHANGE_WIFI_STATE) != PackageManager.PERMISSION_GRANTED) {
                     // Request the permission if not granted
-                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CALL_PHONE}, 1);
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CHANGE_WIFI_STATE}, 1);
                 } else {
                     // Start the activity to initiate the call
-                    startActivity(intent);
+                    // startActivity(intent);
+                    enableWifi();
                 }
                 // WifiUtils.enableWifi(WifiControlActivity.this);
                 // switchWiFi(true);
@@ -113,6 +118,22 @@ public class WifiControlActivity extends AppCompatActivity {
             if (wifiMgr != null) {
                 wifiMgr.setWifiEnabled(isOn);
             }
+        }
+    }
+
+    public static void enableWifi() {
+        try {
+            // Create a ProcessBuilder for adb command to enable Wi-Fi
+            ProcessBuilder processBuilder = new ProcessBuilder("adb", "shell", "svc", "wifi", "enable");
+
+            // Start the process
+            Process process = processBuilder.start();
+
+            // Wait for the process to complete
+            process.waitFor();
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
