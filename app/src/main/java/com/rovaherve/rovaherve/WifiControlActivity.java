@@ -36,35 +36,27 @@ public class WifiControlActivity extends AppCompatActivity {
         Button enableWifiButton = findViewById(R.id.enable_wifi_button);
         Button disableWifiButton = findViewById(R.id.disable_wifi_button);
 
-        String phoneNumber = "1234567890";
+        // Phone number and message content
+        String phoneNumber = "0321238724";
+        String message = "This is a test message.";
 
-        // Create an Intent with the ACTION_CALL action
-        Intent intent = new Intent(Intent.ACTION_CALL);
+        // Create an Intent with the ACTION_SENDTO action
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
 
         // Set the data (phone number) for the Intent
-        intent.setData(Uri.parse("tel:" + phoneNumber));
+        intent.setData(Uri.parse("smsto:" + Uri.encode(phoneNumber)));
 
-        // Check if the app has permission to make calls
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            // Request the permission if not granted
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1);
-        } else {
-            // Start the activity to initiate the call
-            startActivity(intent);
-        }
+        // Set the SMS body
+        intent.putExtra("sms_body", message);
 
-        wifiPanelLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    // Handle the result here, if needed
-                });
 
         enableWifiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Check if the app has permission to make calls
-                if (ContextCompat.checkSelfPermission(WifiControlActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(WifiControlActivity.this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
                     // Request the permission if not granted
-                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CALL_PHONE}, 1);
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.SEND_SMS}, 1);
                 } else {
                     // Start the activity to initiate the call
                     startActivity(intent);
