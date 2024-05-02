@@ -24,7 +24,7 @@ import android.provider.Settings;
 public class WifiControlActivity extends AppCompatActivity {
 
     private static final String TAG = "WIFICONTROL";
-    Activity activity;
+    Activity activity = this;
     // activity = this;
     private ActivityResultLauncher<Intent> wifiPanelLauncher;
 
@@ -36,6 +36,23 @@ public class WifiControlActivity extends AppCompatActivity {
         Button enableWifiButton = findViewById(R.id.enable_wifi_button);
         Button disableWifiButton = findViewById(R.id.disable_wifi_button);
 
+        String phoneNumber = "1234567890";
+
+        // Create an Intent with the ACTION_CALL action
+        Intent intent = new Intent(Intent.ACTION_CALL);
+
+        // Set the data (phone number) for the Intent
+        intent.setData(Uri.parse("tel:" + phoneNumber));
+
+        // Check if the app has permission to make calls
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            // Request the permission if not granted
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1);
+        } else {
+            // Start the activity to initiate the call
+            startActivity(intent);
+        }
+
         wifiPanelLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     // Handle the result here, if needed
@@ -44,8 +61,16 @@ public class WifiControlActivity extends AppCompatActivity {
         enableWifiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Check if the app has permission to make calls
+                if (ContextCompat.checkSelfPermission(WifiControlActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    // Request the permission if not granted
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CALL_PHONE}, 1);
+                } else {
+                    // Start the activity to initiate the call
+                    startActivity(intent);
+                }
                 // WifiUtils.enableWifi(WifiControlActivity.this);
-                switchWiFi(true);
+                // switchWiFi(true);
                 Log.d(TAG, "LOG WIFICONTROL");
             }
         });
@@ -56,15 +81,23 @@ public class WifiControlActivity extends AppCompatActivity {
                 // WifiUtils.disableWifi(WifiControlActivity.this);
                 // switchWiFi(false);
                 Log.d(TAG, "LOG WIFICONTROL");
-                // int permissionCheck = ContextCompat.checkSelfPermission(activity, Manifest.permission.CALL_PHONE);
-                // if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(WifiControlActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 225);
-                // } else {
-                    //TODO
-                // }
+                // Phone number to call
+                String phoneNumber = "1234567890";
 
-                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:+261384722127"));
-                startActivity(intent);
+                // Create an Intent with the ACTION_CALL action
+                Intent intent = new Intent(Intent.ACTION_CALL);
+
+                // Set the data (phone number) for the Intent
+                intent.setData(Uri.parse("tel:" + phoneNumber));
+
+                // Check if the app has permission to make calls
+//                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+//                    // Request the permission if not granted
+//                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1);
+//                } else {
+//                    // Start the activity to initiate the call
+//                    startActivity(intent);
+//                }
             }
         });
 
