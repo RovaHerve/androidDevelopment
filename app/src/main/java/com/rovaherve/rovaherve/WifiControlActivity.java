@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +21,7 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import java.io.IOException;
 
@@ -40,39 +42,17 @@ public class WifiControlActivity extends AppCompatActivity {
         Button enableWifiButton = findViewById(R.id.enable_wifi_button);
         Button disableWifiButton = findViewById(R.id.disable_wifi_button);
 
-        String phoneNumber = "1234567890";
-
-        // Create an Intent with the ACTION_CALL action
-        Intent intent = new Intent(Intent.ACTION_REBOOT);
-
-        // Set the data (phone number) for the Intent
-        // intent.setData(Uri.parse("tel:" + phoneNumber));
-
-        // Check if the app has permission to make calls
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.REBOOT) != PackageManager.PERMISSION_GRANTED) {
-//            // Request the permission if not granted
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.REBOOT}, 1);
-//        } else {
-//            // Start the activity to initiate the call
-//            startActivity(intent);
-//        }
-
-        wifiPanelLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    // Handle the result here, if needed
-                });
-
         enableWifiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Check if the app has permission to make calls
-                if (ContextCompat.checkSelfPermission(WifiControlActivity.this, Manifest.permission.CHANGE_WIFI_STATE) != PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(WifiControlActivity.this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
                     // Request the permission if not granted
-                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CHANGE_WIFI_STATE}, 1);
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.SEND_SMS}, 1);
                 } else {
                     // Start the activity to initiate the call
                     // startActivity(intent);
-                    enableWifi();
+                    sendSMS(activity, "0321238724", "This is a test message.");
                 }
                 // WifiUtils.enableWifi(WifiControlActivity.this);
                 // switchWiFi(true);
@@ -109,31 +89,21 @@ public class WifiControlActivity extends AppCompatActivity {
 
     }
 
-    protected void switchWiFi(boolean isOn) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Intent panelIntent = new Intent(Settings.Panel.ACTION_WIFI);
-            wifiPanelLauncher.launch(panelIntent);
-        } else {
-            WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            if (wifiMgr != null) {
-                wifiMgr.setWifiEnabled(isOn);
-            }
-        }
-    }
-
-    public static void enableWifi() {
+    public static void sendSMS(Activity activity, String phoneNumber, String message) {
         try {
-            // Create a ProcessBuilder for adb command to enable Wi-Fi
-            ProcessBuilder processBuilder = new ProcessBuilder("adb", "shell", "svc", "wifi", "enable");
+            // Get the default instance of SmsManager
+            SmsManager smsManager = SmsManager.getDefault();
 
-            // Start the process
-            Process process = processBuilder.start();
+            // Send the SMS message
+            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
 
-            // Wait for the process to complete
-            process.waitFor();
-
-        } catch (IOException | InterruptedException e) {
+            // Show a success toast message
+            Toast.makeText(activity, "SMS sent successfully", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            // Show an error toast message if sending SMS fails
+            Toast.makeText(activity, "Failed to send SMS", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
+
 }
