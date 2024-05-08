@@ -67,7 +67,8 @@ public class MainActivity extends Activity {
                 Long UPLOAD_toBits = speed[1] * 8;
                 Long UPLOAD_toKilobits = UPLOAD_toBits / 1024;
                 String UPLOAD = UPLOAD_toKilobits.toString();
-                runOnUiThread(() -> tvSpeed.setText(("DOWNLOAD: "+ DOWNLOAD+ "\nUPLOAD: "+UPLOAD)));
+                String SPEED = TrafficsNetworks.getNetworkSpeed();
+                runOnUiThread(() -> tvSpeed.setText(("SPEED: "+ SPEED)));
                 // runOnUiThread(() -> tvSpeed.setText("Network Speed: " + speed[0].toString()));
                 try {
                     Thread.sleep(300); // Update interval
