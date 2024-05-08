@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -68,7 +69,9 @@ public class MainActivity extends Activity {
                 Long UPLOAD_toKilobits = UPLOAD_toBits / 1024;
                 String UPLOAD = UPLOAD_toKilobits.toString();
                 String SPEED = TrafficsNetworks.getNetworkSpeed();
+                Log.d("NETWORKSPEED", "monitorNetworkSpeed: "+ SPEED);
                 runOnUiThread(() -> tvSpeed.setText(("SPEED: "+ SPEED)));
+                // runOnUiThread(() -> )));
                 // runOnUiThread(() -> tvSpeed.setText("Network Speed: " + speed[0].toString()));
                 try {
                     Thread.sleep(300); // Update interval
