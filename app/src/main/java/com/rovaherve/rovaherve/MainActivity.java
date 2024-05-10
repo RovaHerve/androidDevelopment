@@ -28,65 +28,62 @@ import android.util.Log;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MainActivity extends Activity {
-    private long lastTotalRxBytes = 0;
-    private long lastTimeStamp = 0;
-    private TextView tvNetworkSpeed;
-    private TextView tvSpeed;
+public class MainActivity extends AppCompatActivity {
+    private Button buttonStart;
+    private Button buttonStop;
+    private Button buttonNext;
+    static final int START = R.id.buttonStart;
+    static final int STOP = R.id.buttonStop;
+    static final int NEXT = R.id.buttonNext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tvSpeed = findViewById(R.id.tvSpeed);
 
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        Activity activity = this;
+
+        buttonStart = findViewById(R.id.buttonStart);
+        buttonStop = findViewById(R.id.buttonStop);
+        buttonNext =  findViewById(R.id.buttonNext);
+
+        buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                // tvSpeed.setText("Time: " + getCurrentTime());
-                // function to execute
-                monitorNetworkSpeed();
-                handler.postDelayed(this, 500); // update every second
+            public void onClick(View view) {
+                Intent startIntent = new Intent(activity, MyService.class);
+                startService(startIntent);
             }
-        }, 500);
-        // tvNetworkSpeed = findViewById(R.id.tvSpeed);
-        // lastTotalRxBytes = getTotalRxBytes();
-        // lastTimeStamp = System.currentTimeMillis();
-        // monitorSpeed();
-        // monitorNetworkSpeed();
-    }
-
-    private void monitorNetworkSpeed() {
-        new Thread(() -> {
-            while (true) {
-                // Simulate network speed reading
-                Long[] speed = getNetworkSpeed();
-                Long DOWNLOAD_toBits = speed[0] * 8;
-                Long DOWNLOAD_toKilobits = DOWNLOAD_toBits / 1024;
-                String DOWNLOAD = DOWNLOAD_toKilobits.toString();
-                Long UPLOAD_toBits = speed[1] * 8;
-                Long UPLOAD_toKilobits = UPLOAD_toBits / 1024;
-                String UPLOAD = UPLOAD_toKilobits.toString();
-                String SPEED = TrafficsNetworks.getNetworkSpeed();
-                Log.d("NETWORKSPEED", "monitorNetworkSpeed: "+ SPEED);
-                runOnUiThread(() -> tvSpeed.setText(("SPEED: "+ SPEED)));
-                // runOnUiThread(() -> )));
-                // runOnUiThread(() -> tvSpeed.setText("Network Speed: " + speed[0].toString()));
-                try {
-                    Thread.sleep(300); // Update interval
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        });
+        buttonStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopService(new Intent(activity, MyService.class));
             }
-        }).start();
-    }
+        });
+        buttonNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(getApplicationContext(), NextActivity.class);
+               startActivity(intent);
+            }
+        });
 
-    private Long[] getNetworkSpeed() {
-        // Implement network speed calculation here
-        Long download = TrafficStats.getTotalRxBytes();
-        Long upload = TrafficStats.getTotalTxBytes();
-        Long[] return_value = {download, upload};
-        return return_value;
+
     }
+//    public void onClick(View src) {
+//        // private final int SRCID = src.getId();
+//        switch (src.getId()) {
+//            case 1:
+//
+//                startService(new Intent(this, MyService.class));
+//                break;
+//            case STOP:
+//                stopService(new Intent(this, MyService.class));
+//                break;
+//            case NEXT:
+//                Intent intent=new Intent(this,NextActivity.class);
+//                startActivity(intent);
+//                break;
+//        }
+//    }
 }
