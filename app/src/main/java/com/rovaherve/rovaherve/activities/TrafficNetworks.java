@@ -2,12 +2,9 @@ package com.rovaherve.rovaherve.activities;
 
 import android.net.TrafficStats;
 public class TrafficNetworks {
-
     static final Long GB = 1000000000L;
     static final Long MB = 1000000L;
     static final Long KB = 1000L;
-
-    TrafficNetworks activity = this;
 
     public static String getNetworkSpeed() {
         String downloadSpeedOutput = "";
@@ -38,9 +35,9 @@ public class TrafficNetworks {
         }
 
         if (units != " KB" && mDownloadSpeedWithDecimals < 100) {
-            String.format("%.1f", mDownloadSpeedWithDecimals);
+            downloadSpeedOutput = String.format("%.1f", mDownloadSpeedWithDecimals);
         } else {
-            Integer.toString(mDownloadSpeedWithDecimals.intValue());
+            downloadSpeedOutput = Integer.toString(mDownloadSpeedWithDecimals.intValue());
         }
 
         return (downloadSpeedOutput + units);

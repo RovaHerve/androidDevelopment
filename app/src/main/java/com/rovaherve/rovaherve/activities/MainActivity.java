@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String CHANNEL_NAME = "My Notification Channel";
     private TextView uploadSpeedTextView;
     private TextView downloadSpeedTextView;
-
     private long lastTotalRxBytes = 0;
     private long lastTotalTxBytes = 0;
     private long lastTimeStamp = 0;
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                // updateSpeed();
+                updateSpeed();
             }
         }, 0, 1000); // Update speed every second
     }
@@ -112,27 +111,27 @@ public class MainActivity extends AppCompatActivity {
 //        Toast.makeText(this, "network service stopped", Toast.LENGTH_SHORT).show();
 //    }
 
-    private Notification createNotification() {
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        // PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+//    private Notification createNotification() {
+//        Intent notificationIntent = new Intent(this, MainActivity.class);
+//        // PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+//
+//        return new NotificationCompat.Builder(this, CHANNEL_ID)
+//                .setContentTitle("My Notification")
+//                .setContentText("Hello, this is a notification from the service.")
+//                .setSmallIcon(R.drawable.ic_launcher_foreground)
+//                // .setContentIntent(pendingIntent)
+//                .build();
+//    }
 
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("My Notification")
-                .setContentText("Hello, this is a notification from the service.")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                // .setContentIntent(pendingIntent)
-                .build();
-    }
-
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    CHANNEL_NAME,
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
+//    private void createNotificationChannel() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel channel = new NotificationChannel(
+//                    CHANNEL_ID,
+//                    CHANNEL_NAME,
+//                    NotificationManager.IMPORTANCE_DEFAULT
+//            );
+//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//            notificationManager.createNotificationChannel(channel);
+//        }
+//    }
 }

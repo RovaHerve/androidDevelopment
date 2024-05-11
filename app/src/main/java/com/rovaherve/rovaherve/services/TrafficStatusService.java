@@ -3,7 +3,6 @@ package com.rovaherve.rovaherve.services;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
@@ -12,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import com.rovaherve.rovaherve.R;
 import com.rovaherve.rovaherve.activities.MainActivity;
+import com.rovaherve.rovaherve.activities.TrafficNetworks;
 
 public class TrafficStatusService extends Service {
 
@@ -35,10 +35,10 @@ public class TrafficStatusService extends Service {
     private Notification createNotification() {
         Intent notificationIntent = new Intent(this, MainActivity.class);
         // PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
+        String test = TrafficNetworks.getNetworkSpeed();
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("My Notification")
-                .setContentText("Hello, this is a notification from the service.")
+                .setContentTitle("NETWORK SPEED")
+                .setContentText(test)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 // .setContentIntent(pendingIntent)
                 .build();
