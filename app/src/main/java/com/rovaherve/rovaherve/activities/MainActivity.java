@@ -1,21 +1,32 @@
 package com.rovaherve.rovaherve.activities;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+
 import java.util.Timer;
 import java.util.TimerTask;
 import android.net.TrafficStats;
 import android.widget.Toast;
 
 import com.rovaherve.rovaherve.R;
+import com.rovaherve.rovaherve.services.TrafficStatusService;
 
- public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     // TrafficNetworks trafficUtils = new TrafficNetworks();
 
+    private static final int NOTIFICATION_ID = 123;
+    private static final String CHANNEL_ID = "MyNotificationChannel";
+    private static final String CHANNEL_NAME = "My Notification Channel";
     private TextView uploadSpeedTextView;
     private TextView downloadSpeedTextView;
 
@@ -27,7 +38,7 @@ import com.rovaherve.rovaherve.R;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        startService(new Intent(getApplicationContext(), TrafficStatusService.class));
         uploadSpeedTextView = findViewById(R.id.uploadSpeedTextView);
         downloadSpeedTextView = findViewById(R.id.downloadSpeedTextView);
 
@@ -94,4 +105,34 @@ import com.rovaherve.rovaherve.R;
 //        return trafficUtils.getNetworkSpeed();
 //    }
 
+
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        stopService(new Intent(getApplicationContext(), TrafficStatusService.class));
+//        Toast.makeText(this, "network service stopped", Toast.LENGTH_SHORT).show();
+//    }
+
+    private Notification createNotification() {
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        // PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        return new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("My Notification")
+                .setContentText("Hello, this is a notification from the service.")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                // .setContentIntent(pendingIntent)
+                .build();
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 }

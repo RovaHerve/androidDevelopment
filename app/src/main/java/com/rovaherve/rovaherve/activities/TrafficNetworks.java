@@ -7,6 +7,8 @@ public class TrafficNetworks {
     static final Long MB = 1000000L;
     static final Long KB = 1000L;
 
+    TrafficNetworks activity = this;
+
     public static String getNetworkSpeed() {
         String downloadSpeedOutput = "";
         String units = "";

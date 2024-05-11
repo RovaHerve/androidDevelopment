@@ -65,4 +65,7 @@
     <string name="disable_wifi">DISABLE WIFI</string>
     <string name="enable_wifi">ENABLE WIFI</string>
     <string name="TRIGGER">trigger</string>
+    <string name="speed_label">speed</string>
+    <string name="mobile_label">mobile\n</string>
+    <string name="wifi_label">wifi</string>
 </resources>
