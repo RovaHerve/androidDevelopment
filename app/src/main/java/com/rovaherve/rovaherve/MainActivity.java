@@ -1,63 +1,92 @@
 package com.rovaherve.rovaherve;
 
-
+// MainActivity.java
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
-import android.webkit.PermissionRequest;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
+import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int REQUEST_CODE_PERMISSIONS = 1001;
-    private WebView myWebView;
+    private static final int REQUEST_CODE_PERMISSIONS = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                        View.SYSTEM_UI_FLAG_FULLSCREEN |
-                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        myWebView = findViewById(R.id.webview);
-        WebSettings webSettings = myWebView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setMediaPlaybackRequiresUserGesture(false);
+        Button startButton = findViewById(R.id.startButton);
+        Button stopButton = findViewById(R.id.stopButton);
 
-        myWebView.setWebChromeClient(new WebChromeClient() {
+        if (checkPermissions()) {
+            startRecordingService();
+        } else {
+            requestPermissions();
+        }
+
+        startButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onPermissionRequest(final PermissionRequest request) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                                ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
-                                    REQUEST_CODE_PERMISSIONS);
-                        } else {
-                            request.grant(request.getResources());
-                        }
-                    }
-                });
+            public void onClick(View v) {
+                if (checkPermissions()) {
+                    startRecordingService();
+                } else {
+                    requestPermissions();
+                }
             }
         });
 
-        myWebView.loadUrl("https://peercalls.com");
+        stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopRecordingService();
+            }
+        });
+    }
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        if (checkPermissions()) {
+//            startRecordingService();
+//        } else {
+//            requestPermissions();
+//        }
+//    }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        stopRecordingService();
+//    }
+
+    private boolean checkPermissions() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                REQUEST_CODE_PERMISSIONS);
+    }
+//
+//getExternalFilesDir(null) + "/sdcard/audio_recording.3gp"
+    private void startRecordingService() {
+        Intent serviceIntent = new Intent(this, AudioRecordingService.class);
+        serviceIntent.putExtra("FILE_PATH", getExternalFilesDir(null)+"/audio.3gp");
+        ContextCompat.startForegroundService(this, serviceIntent);
+
+    }
+
+    private void stopRecordingService() {
+        Intent serviceIntent = new Intent(this, AudioRecordingService.class);
+        stopService(serviceIntent);
     }
 
     @Override
@@ -65,9 +94,10 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                myWebView.reload();
+                startRecordingService();
+            } else {
+                // Permission denied
             }
         }
     }
 }
-
