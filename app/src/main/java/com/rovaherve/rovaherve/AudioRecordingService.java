@@ -17,6 +17,7 @@ import java.io.IOException;
 
 public class AudioRecordingService extends Service {
     private static final String CHANNEL_ID = "AudioRecordingChannel";
+    private static final String TAG = "AUDIORECORDING";
     private MediaRecorder recorder;
     private String filePath;
 
@@ -25,15 +26,14 @@ public class AudioRecordingService extends Service {
         super.onCreate();
         createNotificationChannel();
         startForeground(1, getNotification());
+        Log.d(TAG, "onCreate()");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // filePath = intent.getStringExtra("FILE_PATH");
-//        filePath = "//storage/emulated/0/audio.3gp";
-        filePath = String.valueOf(getExternalFilesDir("/audio.3gp"));
-        Log.i("OUTPUT", filePath);
+        filePath = intent.getStringExtra("FILE_PATH");
         startRecording();
+        Log.d(TAG, "onStartCommand()");
         return START_STICKY;
     }
 
@@ -56,6 +56,7 @@ public class AudioRecordingService extends Service {
         recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         recorder.setOutputFile(filePath);
+        Log.d(TAG, "startRecording()");
 
         try {
             recorder.prepare();
@@ -66,6 +67,7 @@ public class AudioRecordingService extends Service {
     }
 
     private void stopRecording() {
+        Log.d(TAG, filePath);
         Toast.makeText(this, "Recording stopped", Toast.LENGTH_SHORT).show();
         if (recorder != null) {
             recorder.stop();
