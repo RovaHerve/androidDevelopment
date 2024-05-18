@@ -1,103 +1,110 @@
 package com.rovaherve.rovaherve;
 
-// MainActivity.java
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Button;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int REQUEST_CODE_PERMISSIONS = 200;
+    private static final int REQUEST_VIDEO_CAPTURE = 1;
+    private static final int REQUEST_PERMISSIONS = 100;
+    private Uri videoUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Button startButton = findViewById(R.id.startButton);
-        Button stopButton = findViewById(R.id.stopButton);
-
-        if (checkPermissions()) {
-            startRecordingService();
-        } else {
-            requestPermissions();
-        }
-
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkPermissions()) {
-                    startRecordingService();
-                } else {
-                    requestPermissions();
-                }
-            }
-        });
-
-        stopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopRecordingService();
+        startService(new Intent(this, AudioRecordingService.class));
+        Button captureButton = findViewById(R.id.captureButton);
+        captureButton.setOnClickListener(v -> {
+            if (checkPermissions()) {
+                // dispatchTakeVideoIntent();
             }
         });
     }
-
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        if (checkPermissions()) {
-//            startRecordingService();
-//        } else {
-//            requestPermissions();
-//        }
-//    }
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        stopRecordingService();
-//    }
 
     private boolean checkPermissions() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_PERMISSIONS);
+            return false;
+        }
+        return true;
     }
 
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                REQUEST_CODE_PERMISSIONS);
+    private void dispatchTakeVideoIntent() {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
+            File videoFile = null;
+            try {
+                videoFile = createVideoFile();
+            } catch (IOException ex) {
+                Log.e("VideoCapture", "Error occurred while creating the video file", ex);
+            }
+            if (videoFile != null) {
+                videoUri = FileProvider.getUriForFile(this,
+                        "com.rovaherve.rovaherve.fileprovider",
+                        videoFile);
+                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoUri);
+                startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
+            }
+        }
     }
-//
-//getExternalFilesDir(null) + "/sdcard/audio_recording.3gp"
-    private void startRecordingService() {
-        Intent serviceIntent = new Intent(this, AudioRecordingService.class);
-        serviceIntent.putExtra("FILE_PATH", getExternalFilesDir(null)+"/audio.3gp");
-        ContextCompat.startForegroundService(this, serviceIntent);
 
+    private File createVideoFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String videoFileName = "VIDEO_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        return File.createTempFile(
+                videoFileName,
+                ".mp4",
+                storageDir
+        );
     }
 
-    private void stopRecordingService() {
-        Intent serviceIntent = new Intent(this, AudioRecordingService.class);
-        stopService(serviceIntent);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
+            if (videoUri != null) {
+                // Video saved to the specified location
+                Log.d("VideoCapture", "Video saved to: " + videoUri.toString());
+            }
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                startRecordingService();
-            } else {
-                // Permission denied
+        if (requestCode == REQUEST_PERMISSIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                dispatchTakeVideoIntent();
             }
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopService(new Intent(getApplicationContext(), AudioRecordingService.class));
     }
 }
