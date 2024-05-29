@@ -111,7 +111,7 @@ dependencies {
     // noinspection GradleDependency
     implementation 'com.squareup.picasso:picasso:2.8'
     // WebRTC.
-    implementation 'com.dafruits:webrtc:109.0.0'
+     implementation 'com.dafruits:webrtc:109.0.0'
     // QR Code generator.
     implementation 'io.nayuki:qrcodegen:1.8.0'
 
@@ -119,6 +119,9 @@ dependencies {
 
     // noinspection GradleDependency: does not compile with 2.x (even for API 33).
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+
+    // jitsi meet implementation
+    implementation ('org.jitsi.react:jitsi-meet-sdk:+') { transitive = true }
 }
 
 configurations {
