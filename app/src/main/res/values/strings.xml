@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="asset_statements" translatable="false">[{ \"include\": \"https://web.tinode.co/.well-known/assetlinks.json\" }]</string>
-    <string name="tinode_url" translatable="false">52.2.220.66</string>
+    <string name="tinode_url" translatable="false">https://lovasoa.imboasalama.online</string>
     <string name="emulator_host_name" translatable="false">https://sandbox.tinode.co</string>
     <string name="contact_us_uri" translatable="false">mailto:rrabeandriamarozoky@gmail.com</string>
     <string name="terms_of_use_uri" translatable="false">https://google.com</string>
@@ -63,7 +63,7 @@
     <string name="action_delete_group">Delete conversation…</string>
     <string name="action_leave_topic">Leave conversation…</string>
     <string name="action_video_call">Video call</string>
-
+    <string name="action_conference_call">conference call</string>
     <string name="avatar">Avatar picture</string>
     <string name="select_image">Select image</string>
     <string name="select_file">Select file</string>

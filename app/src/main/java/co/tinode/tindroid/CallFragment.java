@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
 import org.webrtc.Camera1Enumerator;
@@ -83,12 +84,12 @@ public class CallFragment extends Fragment {
 
     // Camera constants.
     // TODO: hardcoded for now. Consider querying camera for supported values.
-    // private static final int CAMERA_RESOLUTION_WIDTH = 1024;
-    // private static final int CAMERA_RESOLUTION_HEIGHT = 720;
-    // private static final int CAMERA_FPS = 30;
-    private static final int CAMERA_RESOLUTION_WIDTH = 144;
-    private static final int CAMERA_RESOLUTION_HEIGHT = 144;
-    private static final int CAMERA_FPS = 8;
+     private static final int CAMERA_RESOLUTION_WIDTH = 1024;
+     private static final int CAMERA_RESOLUTION_HEIGHT = 720;
+     private static final int CAMERA_FPS = 30;
+//    private static final int CAMERA_RESOLUTION_WIDTH = 144;
+//    private static final int CAMERA_RESOLUTION_HEIGHT = 144;
+//    private static final int CAMERA_FPS = 8;
     public enum CallDirection {
         OUTGOING,
         INCOMING,

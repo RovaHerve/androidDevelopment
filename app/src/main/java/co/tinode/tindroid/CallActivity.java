@@ -24,7 +24,31 @@ import co.tinode.tinodesdk.Tinode;
 import co.tinode.tinodesdk.Topic;
 import co.tinode.tinodesdk.model.ServerMessage;
 
+// Jitsi meet parameters
+import org.jitsi.meet.sdk.BroadcastEvent;
+import org.jitsi.meet.sdk.BroadcastIntentHelper;
+import org.jitsi.meet.sdk.JitsiMeet;
+import org.jitsi.meet.sdk.JitsiMeetActivity;
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
+import org.jitsi.meet.sdk.JitsiMeetUserInfo;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import timber.log.Timber;
+
+
 public class CallActivity extends AppCompatActivity  {
+
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            onBroadcastReceived(intent);
+        }
+    };
+
+
+
     private static final String TAG = "CallActivity";
 
     static final String FRAGMENT_ACTIVE = "active_call";
@@ -52,6 +76,31 @@ public class CallActivity extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // JitsiMeet parameters
+        // Initialize default options for Jitsi Meet conferences.
+        URL serverURL;
+        try {
+            // When using JaaS, replace "https://meet.jit.si" with the proper serverURL
+            // serverURL = new URL("https://meet.jit.si");
+            serverURL = new URL("https://meet.ffmuc.net/");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Invalid server URL!");
+        }
+        JitsiMeetConferenceOptions defaultOptions
+                = new JitsiMeetConferenceOptions.Builder()
+                .setServerURL(serverURL)
+                // When using JaaS, set the obtained JWT here
+                // .setToken("eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtZTdlMjYxYTU2ZWY4NDEyYzgwNzFkZWY5ZTVhYjQ0ZTUvNjA2ZTM3LVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3MTY3MDMzMTksImV4cCI6MTcxNjcxMDUxOSwibmJmIjoxNzE2NzAzMzE0LCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtZTdlMjYxYTU2ZWY4NDEyYzgwNzFkZWY5ZTVhYjQ0ZTUiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlfSwidXNlciI6eyJoaWRkZW4tZnJvbS1yZWNvcmRlciI6ZmFsc2UsIm1vZGVyYXRvciI6dHJ1ZSwibmFtZSI6InJyYWJlYW5kcmlhbWFyb3pva3kiLCJpZCI6Imdvb2dsZS1vYXV0aDJ8MTE2OTU1NjIwMDQ1NTg3NTI5NjAyIiwiYXZhdGFyIjoiIiwiZW1haWwiOiJycmFiZWFuZHJpYW1hcm96b2t5QGdtYWlsLmNvbSJ9fSwicm9vbSI6IioifQ.DL8gJrI-b9wRfvysnUoZpwbL2GyPnEEygNJ_KascfIgaYSw_Y1PVzJZ-PlRSquBxVOGmoP_8iILP3wZShILtQL0jCXOqPi-xOhANCYO9gaMHHJqEJtDJwXrPXCaaJECCumcNSJOHVWg30kz0JNiwKDDczk0NNRmIRVcwYOwsuOvbS1O0We-Ggo2kdL_VpwEVS_kit1tob7g525fE7qqRsAKE5Az-OOnU7ThQEdr_06PphT4_UMb7BazutWerp4gz6WvGN1p7ZzHoTqSwTmUzcwzb-phwEJ4HsJkSrXqwGywuIY8jsOKsJzfLxG1bnimMs5zQ9U27ikT3KSHtL6I1hg")
+                // Different features flags can be set
+                // .setFeatureFlag("toolbox.enabled", false)
+                // .setFeatureFlag("filmstrip.enabled", false)
+                .setFeatureFlag("welcomepage.enabled", false)
+                .build();
+        JitsiMeet.setDefaultConferenceOptions(defaultOptions);
+
+        registerForBroadcastMessages();
 
         NotificationManager nm = getSystemService(NotificationManager.class);
         nm.cancel(CallManager.NOTIFICATION_TAG_INCOMING_CALL, 0);
@@ -135,6 +184,24 @@ public class CallActivity extends AppCompatActivity  {
         showFragment(fragmentToShow, args);
     }
 
+    private void registerForBroadcastMessages() {
+        IntentFilter intentFilter = new IntentFilter();
+
+        /**
+         * This registers for every possible event sent from JitsiMeetSDK
+         * *If only some of the events are needed, the for loop can be replaced
+         * with individual statements:
+           ex:  intentFilter.addAction(BroadcastEvent.Type.AUDIO_MUTED_CHANGED.getAction());
+                intentFilter.addAction(BroadcastEvent.Type.CONFERENCE_TERMINATED.getAction());
+                ... other events
+         **/
+        for (BroadcastEvent.Type type : BroadcastEvent.Type.values()) {
+            intentFilter.addAction(type.getAction());
+        }
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
+    }
+
     @Override
     public void onDestroy() {
         if (mTinode != null) {
@@ -159,10 +226,61 @@ public class CallActivity extends AppCompatActivity  {
         super.onDestroy();
     }
 
+    private void onBroadcastReceived(Intent intent) {
+        if (intent != null) {
+            BroadcastEvent event = new BroadcastEvent(intent);
+
+            switch (event.getType()) {
+                case CONFERENCE_JOINED:
+                    Timber.i("Conference Joined with url%s", event.getData().get("url"));
+                    break;
+                case PARTICIPANT_JOINED:
+                    Timber.i("Participant joined%s", event.getData().get("name"));
+                    break;
+            }
+        }
+    }
+
+    private void hangUp() {
+        Intent hangupBroadcastIntent = BroadcastIntentHelper.buildHangUpIntent();
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(hangupBroadcastIntent);
+    }
+
     void acceptCall() {
+
+        String text = "lovasoaRoom";
         Bundle args = new Bundle();
         args.putString(Const.INTENT_EXTRA_CALL_DIRECTION, "incoming");
         showFragment(FRAGMENT_ACTIVE, args);
+//        JitsiMeetUserInfo tmpUser = new JitsiMeetUserInfo();
+//        tmpUser.setDisplayName("Rova");
+
+//            JitsiMeetConferenceOptions options
+//                    = new JitsiMeetConferenceOptions.Builder()
+//                    .setRoom(text)
+//                    .setUserInfo(tmpUser)
+//                    // Settings for audio and video
+//                    //.setAudioMuted(true)
+//                    .setVideoMuted(true)
+//                    .build();
+//        JitsiMeetConferenceOptions options = new JitsiMeetConferenceOptions.Builder()
+//                .setRoom(text)
+//                .setConfigOverride("requireDisplayName", false)
+//                .setConfigOverride("reqiureInviteOthers", false)
+//                .setFeatureFlag("invite.enabled", false)// <-- add this line
+//                .setFeatureFlag("add-people.enabled", false)// <-- add this line
+//                .setFeatureFlag("meeting-name.enabled", false)
+//                .setFeatureFlag("raise-hand.enabled", false)
+//                .setFeatureFlag("reactions.enabled", false)
+//                .setFeatureFlag("recording.enabled", false)
+//                .setFeatureFlag("resolution", "set")
+//                .setFeatureFlag("unsaferoomwarning.enabled", false)
+//                .setFeatureFlag("meeting-password.enabled", false)
+//                .build();
+//        // Launch the new activity with the given options. The launch() method takes care
+        // of creating the required Intent and passing the options.
+//        JitsiMeetActivity.launch(this, options);
+
     }
 
     void declineCall() {

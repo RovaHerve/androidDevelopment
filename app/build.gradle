@@ -111,7 +111,7 @@ dependencies {
     // noinspection GradleDependency
     implementation 'com.squareup.picasso:picasso:2.8'
     // WebRTC.
-     implementation 'com.dafruits:webrtc:109.0.0'
+      implementation 'com.dafruits:webrtc:109.0.0'
     // QR Code generator.
     implementation 'io.nayuki:qrcodegen:1.8.0'
 
@@ -120,12 +120,26 @@ dependencies {
     // noinspection GradleDependency: does not compile with 2.x (even for API 33).
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
 
+    implementation('org.jitsi.react:jitsi-meet-sdk:9.2.2') {
+        exclude group: 'org.jitsi', module: 'webrtc'
+    }
+
+
+
     // jitsi meet implementation
-    implementation ('org.jitsi.react:jitsi-meet-sdk:+') { transitive = true }
+    // implementation ('org.jitsi.react:jitsi-meet-sdk:9.2.2') { transitive = true }
+    // implementation ('org.jitsi.react:jitsi-meet-sdk:9.2.2') { exclude group: 'org.jitsi.webrtc', module: 'webrtc' }
+
 }
 
 configurations {
     all {
         exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-ktx'
+    }
+    resolutionStrategy {
+        // do not upgrade above 3.12.0 to support API < 21 while server uses
+        // COMPATIBLE_TLS, or okhttp3 is used in project
+        // force 'com.dafruits:webrtc:109.0.0'
+        // force 'com.squareup.okhttp3:logging-interceptor:3.12.0'
     }
 }

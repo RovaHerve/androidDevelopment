@@ -70,8 +70,8 @@ import okhttp3.Request;
  */
 public class TindroidApp extends Application implements DefaultLifecycleObserver {
 
-    private static final String DEFAULT_HOSTNAME = "52.2.220.66";
-    private static final boolean DEFAULT_TLS = false;
+    private static final String DEFAULT_HOSTNAME = "lovasoa.imboasalama.online";
+    private static final boolean DEFAULT_TLS = true;
     private static final String TAG = "TindroidApp";
 
     // 256 MB.

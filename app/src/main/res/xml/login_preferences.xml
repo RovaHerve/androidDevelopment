@@ -24,6 +24,6 @@
     <!-- For keeping last used login -->
     <androidx.preference.EditTextPreference
         android:key="pref_lastLogin"
-        app:isPreferenceVisible="false" />
+        app:isPreferenceVisible="true" />
 
 </androidx.preference.PreferenceScreen>

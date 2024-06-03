@@ -878,6 +878,11 @@ public class MessagesFragment extends Fragment implements MenuProvider {
                         Cache.getTinode().getServerParam("iceServers") != null;
                 menu.findItem(R.id.action_video_call).setVisible(callsEnabled);
                 menu.findItem(R.id.action_audio_call).setVisible(callsEnabled);
+
+                boolean videoConferenceEnable = mTopic.isGrpType() &&
+                        Cache.getTinode().getServerParam("iceServers") != null;
+                menu.findItem(R.id.action_conference_call).setVisible(videoConferenceEnable);
+
             }
         }
     }

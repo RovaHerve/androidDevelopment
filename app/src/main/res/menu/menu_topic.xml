@@ -39,6 +39,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_conference_call"
+        android:orderInCategory="111"
+        android:title="@string/action_conference_call"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_mute"
         android:orderInCategory="104"
         android:title="@string/action_mute"

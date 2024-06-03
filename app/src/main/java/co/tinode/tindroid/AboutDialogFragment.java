@@ -31,18 +31,18 @@ public class AboutDialogFragment extends DialogFragment {
 
         BrandingConfig branding = BrandingConfig.getConfig(activity);
 
-//        String serverUrl = Cache.getTinode().getHttpOrigin();
-//        if (TextUtils.isEmpty(serverUrl)) {
-//            if (branding != null && !TextUtils.isEmpty(branding.api_url)) {
-//                serverUrl = branding.api_url;
-//            } else {
-//                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
-//                String hostname = pref.getString(Utils.PREFS_HOST_NAME, TindroidApp.getDefaultHostName());
-//                String scheme = pref.getBoolean(Utils.PREFS_USE_TLS, TindroidApp.getDefaultTLS()) ? "https://" : "http://";
-//                serverUrl = scheme + hostname;
-//            }
-//        }
-        String serverUrl = "";
+        String serverUrl = Cache.getTinode().getHttpOrigin();
+        if (TextUtils.isEmpty(serverUrl)) {
+            if (branding != null && !TextUtils.isEmpty(branding.api_url)) {
+                serverUrl = branding.api_url;
+            } else {
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
+                String hostname = pref.getString(Utils.PREFS_HOST_NAME, TindroidApp.getDefaultHostName());
+                String scheme = pref.getBoolean(Utils.PREFS_USE_TLS, TindroidApp.getDefaultTLS()) ? "https://" : "http://";
+                serverUrl = scheme + hostname;
+            }
+        }
+//        String serverUrl = "";
         View dialog = View.inflate(activity, R.layout.dialog_about, null);
         UiUtils.fillAboutTinode(dialog, serverUrl, branding);
 
