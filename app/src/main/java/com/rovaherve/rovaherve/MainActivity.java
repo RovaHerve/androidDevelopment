@@ -1,110 +1,54 @@
 package com.rovaherve.rovaherve;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.widget.Button;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import android.os.Bundle;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import okhttp3.OkHttpClient;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int REQUEST_VIDEO_CAPTURE = 1;
-    private static final int REQUEST_PERMISSIONS = 100;
-    private Uri videoUri;
+    private OkHttpClient client;
+    private TextView textView;
+    private EditText editText;
+    private Button buttonSend;
+    private WebSocket webSocket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startService(new Intent(this, AudioRecordingService.class));
-        Button captureButton = findViewById(R.id.captureButton);
-        captureButton.setOnClickListener(v -> {
-            if (checkPermissions()) {
-                // dispatchTakeVideoIntent();
+
+        client = new OkHttpClient();
+        textView = findViewById(R.id.textView);
+        editText = findViewById(R.id.editText);
+        buttonSend = findViewById(R.id.buttonSend);
+
+        Request request = new Request.Builder().url("ws://192.168.165.63:8765").build();
+        MyWebSocketListener listener = new MyWebSocketListener();
+        // WebSocket ws = client.newWebSocket(request, listener);
+        webSocket = client.newWebSocket(request, listener);
+
+        buttonSend.setOnClickListener(v -> {
+            String message = editText.getText().toString();
+            if (!message.isEmpty()) {
+                webSocket.send(message);
+                editText.setText("");
             }
         });
+
+        // Trigger shutdown of the dispatcher's executor so this process can exit cleanly.
+        client.dispatcher().executorService().shutdown();
     }
 
-    private boolean checkPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_PERMISSIONS);
-            return false;
-        }
-        return true;
-    }
-
-    private void dispatchTakeVideoIntent() {
-        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        if (takeVideoIntent.resolveActivity(getPackageManager()) != null) {
-            File videoFile = null;
-            try {
-                videoFile = createVideoFile();
-            } catch (IOException ex) {
-                Log.e("VideoCapture", "Error occurred while creating the video file", ex);
-            }
-            if (videoFile != null) {
-                videoUri = FileProvider.getUriForFile(this,
-                        "com.rovaherve.rovaherve.fileprovider",
-                        videoFile);
-                takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoUri);
-                startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
-            }
-        }
-    }
-
-    private File createVideoFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String videoFileName = "VIDEO_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        return File.createTempFile(
-                videoFileName,
-                ".mp4",
-                storageDir
-        );
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
-            if (videoUri != null) {
-                // Video saved to the specified location
-                Log.d("VideoCapture", "Video saved to: " + videoUri.toString());
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSIONS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                dispatchTakeVideoIntent();
-            }
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        stopService(new Intent(getApplicationContext(), AudioRecordingService.class));
+    public void updateTextView(String message) {
+        runOnUiThread(() -> textView.setText(message));
     }
 }

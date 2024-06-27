@@ -66,4 +66,5 @@
     <string name="enable_wifi">ENABLE WIFI</string>
     <string name="TRIGGER">trigger</string>
     <string name="next_page">Next Page</string>
+    <string name="title_activity_main2">MainActivity2</string>
 </resources>
