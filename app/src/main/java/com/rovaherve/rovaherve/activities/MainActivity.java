@@ -1,33 +1,17 @@
 package com.rovaherve.rovaherve.activities;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-
 import java.util.Timer;
 import java.util.TimerTask;
-import android.net.TrafficStats;
 import android.widget.Toast;
-
 import com.rovaherve.rovaherve.R;
 import com.rovaherve.rovaherve.services.TrafficStatusService;
-
 public class MainActivity extends AppCompatActivity {
-    // TrafficNetworks trafficUtils = new TrafficNetworks();
-
-    private static final int NOTIFICATION_ID = 123;
-    private static final String CHANNEL_ID = "MyNotificationChannel";
-    private static final String CHANNEL_NAME = "My Notification Channel";
-    private TextView uploadSpeedTextView;
+    private static TrafficNetworks trafficUtils = new TrafficNetworks();
     private TextView downloadSpeedTextView;
     private long lastTotalRxBytes = 0;
     private long lastTotalTxBytes = 0;
@@ -38,8 +22,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         startService(new Intent(getApplicationContext(), TrafficStatusService.class));
-        uploadSpeedTextView = findViewById(R.id.uploadSpeedTextView);
-        downloadSpeedTextView = findViewById(R.id.downloadSpeedTextView);
+        // uploadSpeedTextView = findViewById(R.id.uploadSpeedTextView);
+        downloadSpeedTextView = findViewById(R.id.downloadSpeed);
 
         // Start periodic update task
         Timer timer = new Timer();
@@ -50,45 +34,56 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 0, 1000); // Update speed every second
     }
-
-    private void updateSpeed() {
-        String test = TrafficNetworks.getNetworkSpeed();
-        long currentRxBytes = TrafficStats.getMobileRxBytes();
-        long currentTxBytes = TrafficStats.getMobileTxBytes() ;
-        long currentTimeStamp = System.currentTimeMillis();
-        long downloadSpeed = calculateSpeed(lastTotalRxBytes, currentRxBytes, lastTimeStamp, currentTimeStamp);
-        long uploadSpeed = calculateSpeed(lastTotalTxBytes, currentTxBytes, lastTimeStamp, currentTimeStamp);
-
-        // Update download and upload speed TextViews
-        runOnUiThread(() -> {
-            downloadSpeedTextView.setText(String.format("Download Speed: %d KB/s", test));
-            // uploadSpeedTextView.setText(String.format("Upload Speed: %d KB/s", uploadSpeed));
+      private void updateSpeed() {
+        String test = trafficUtils.getNetworkSpeed();
+        runOnUiThread(()->{
+            downloadSpeedTextView.setText(test);
+            Log.d("NetworkSpeed: ", test);
         });
+      }
+//    private void updateSpeed() {
+//        String test = TrafficNetworks.getNetworkSpeed();
+//        long currentRxBytes = TrafficStats.getMobileRxBytes();
+//        long currentTxBytes = TrafficStats.getMobileTxBytes() ;
+//        long currentTimeStamp = System.currentTimeMillis();
+//        long downloadSpeed = calculateSpeed(lastTotalRxBytes, currentRxBytes, lastTimeStamp, currentTimeStamp);
+//        long uploadSpeed = calculateSpeed(lastTotalTxBytes, currentTxBytes, lastTimeStamp, currentTimeStamp);
+//
+//        // Update download and upload speed TextViews
+//        runOnUiThread(() -> {
+//            downloadSpeedTextView.setText(String.format("Download Speed: %d KB/s", test));
+//            uploadSpeedTextView.setText(String.format("Upload Speed: %d KB/s", uploadSpeed));
+//        });
+//
+//        lastTotalRxBytes = currentRxBytes;
+//        lastTotalTxBytes = currentTxBytes;
+//        lastTimeStamp = currentTimeStamp;
+//    }
+//    private void updateSpeed() {
+//        Log.d("UpdateSpeed", String.valueOf(NOTIFICATION_ID));
+//        NOTIFICATION_ID++;
+//    }
 
-        lastTotalRxBytes = currentRxBytes;
-        lastTotalTxBytes = currentTxBytes;
-        lastTimeStamp = currentTimeStamp;
-    }
 
-    private long getTotalRxBytes() {
-        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            // return networkInfo.getTotalRxBytes();
-            return TrafficStats.getTotalRxBytes();
-        }
-        return 0;
-    }
+//    private long getTotalRxBytes() {
+//        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
+//        if (networkInfo != null && networkInfo.isConnected()) {
+//            // return networkInfo.getTotalRxBytes();
+//            return TrafficStats.getTotalRxBytes();
+//        }
+//        return 0;
+//    }
 
-    private long getTotalTxBytes() {
-        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            // return networkInfo.getTotalTxBytes();
-            return TrafficStats.getTotalTxBytes();
-        }
-        return 0;
-    }
+//    private long getTotalTxBytes() {
+//        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
+//        if (networkInfo != null && networkInfo.isConnected()) {
+//            // return networkInfo.getTotalTxBytes();
+//            return TrafficStats.getTotalTxBytes();
+//        }
+//        return 0;
+//    }
 
     private long calculateSpeed(long lastTotalBytes, long currentTotalBytes, long lastTimeStamp, long currentTimeStamp) {
         long bytesDelta = currentTotalBytes - lastTotalBytes;
@@ -105,11 +100,11 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
 
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        stopService(new Intent(getApplicationContext(), TrafficStatusService.class));
-//        Toast.makeText(this, "network service stopped", Toast.LENGTH_SHORT).show();
-//    }
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(new Intent(getApplicationContext(), TrafficStatusService.class));
+        Toast.makeText(this, "network service stopped", Toast.LENGTH_SHORT).show();
+    }
 
 //    private Notification createNotification() {
 //        Intent notificationIntent = new Intent(this, MainActivity.class);
