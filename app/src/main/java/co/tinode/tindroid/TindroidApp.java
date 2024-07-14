@@ -33,6 +33,7 @@ import android.os.HandlerThread;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.google.android.exoplayer2.database.StandaloneDatabaseProvider;
@@ -59,6 +60,7 @@ import androidx.work.WorkManager;
 import co.tinode.tindroid.account.ContactsObserver;
 import co.tinode.tindroid.account.Utils;
 import co.tinode.tindroid.db.BaseDb;
+import co.tinode.tindroid.services.TrafficStatusService;
 import co.tinode.tinodesdk.ServerResponseException;
 import co.tinode.tinodesdk.Tinode;
 
@@ -304,10 +306,13 @@ public class TindroidApp extends Application implements DefaultLifecycleObserver
 
     @Override
     public void onStop(@NonNull LifecycleOwner owner) {
+        stopService(new Intent(getApplicationContext(), TrafficStatusService.class));
+        Toast.makeText(this, "network service stopped", Toast.LENGTH_SHORT).show();
         // Disconnect now, so the connection does not wait for the timeout.
         if (Cache.getTinode() != null) {
             Cache.getTinode().maybeDisconnect(false);
         }
+
     }
 
     private void createNotificationChannels() {
