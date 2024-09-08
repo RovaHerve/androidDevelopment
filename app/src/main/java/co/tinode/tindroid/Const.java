@@ -46,5 +46,6 @@ public class Const {
 
     public static final String CALL_NOTIFICATION_CHAN_ID = "video_calls";
     public static final String NEWMSG_NOTIFICATION_CHAN_ID = "new_message";
+    public static  final String SERVER_ENDPOINT = "ws://lovasoa.imboasalama.online:8000/ws/devices";
 
 }

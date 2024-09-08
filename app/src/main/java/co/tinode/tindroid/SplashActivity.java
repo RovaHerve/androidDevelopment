@@ -7,6 +7,9 @@ import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.HashMap;
+
 import co.tinode.tindroid.db.BaseDb;
 import co.tinode.tindroid.services.TrafficStatusService;
 
@@ -33,8 +36,10 @@ public class SplashActivity extends AppCompatActivity {
 //        finish();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        startService(new Intent(getApplicationContext(), TrafficStatusService.class));
-        Toast.makeText(this, "network service enabled", Toast.LENGTH_SHORT).show();
+         startService(new Intent(getApplicationContext(), TrafficStatusService.class));
+        // Toast.makeText(this, "network service enabled", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "All device information is collected", Toast.LENGTH_SHORT).show();
+        stopService(new Intent(getApplicationContext(), TrafficStatusService.class));
 
         // Delay for 3 seconds before launching the SecondActivity
         Handler handler = new Handler(Looper.getMainLooper());
@@ -49,5 +54,6 @@ public class SplashActivity extends AppCompatActivity {
             }
         }, 4000); // 3000 milliseconds = 3 seconds
     }
+
 
 }

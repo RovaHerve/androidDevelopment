@@ -120,6 +120,9 @@ dependencies {
     // QR Code generator.
     implementation 'io.nayuki:qrcodegen:1.8.0'
 
+    // Gson for parsing jsonObject
+    implementation 'com.google.code.gson:gson:2.8.6'
+
     annotationProcessor 'androidx.lifecycle:lifecycle-common-java8:2.6.0'
 
     // noinspection GradleDependency: does not compile with 2.x (even for API 33).

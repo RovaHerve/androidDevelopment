@@ -3,6 +3,8 @@
     <domain-config cleartextTrafficPermitted="true">
         <!-- Permit local host access from the emulator -->
         <domain includeSubdomains="true">52.2.220.66</domain>
+        <domain includeSubdomains="true">192.168.85.63</domain>
+        <domain includeSubdomains="true">192.168.249.233</domain>
     </domain-config>
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
